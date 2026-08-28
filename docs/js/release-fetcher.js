@@ -7,7 +7,7 @@
  * GitHub API call fails for any reason (rate limiting, offline, etc.).
  */
 (function () {
-  const OWNER = "MOSHHHHHHH";
+  const OWNER = "MOSHHHHHH";
   const REPO = "PDFtoIMG";
   const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`;
 
