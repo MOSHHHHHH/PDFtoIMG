@@ -85,20 +85,21 @@
                 <UniformGrid Columns="2" Rows="1">
                     <StackPanel Margin="0,0,10,0">
                         <TextBlock Text="רזולוציה (DPI):" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
-                        <ComboBox x:Name="DpiCombo" SelectedIndex="1" SelectionChanged="DpiCombo_SelectionChanged">
-                            <ComboBoxItem Content="150 (מהיר)" Tag="150"/>
-                            <ComboBoxItem Content="300 (מומלץ)" Tag="300"/>
-                            <ComboBoxItem Content="600 (איכות גבוהה)" Tag="600"/>
-                            <ComboBoxItem Content="מותאם אישית..." Tag="custom"/>
+                        <ComboBox x:Name="DpiCombo" SelectedIndex="1" FontSize="15" Padding="8,6"
+                                  SelectionChanged="DpiCombo_SelectionChanged">
+                            <ComboBoxItem Content="150 (מהיר)" Tag="150" FontSize="15"/>
+                            <ComboBoxItem Content="300 (מומלץ)" Tag="300" FontSize="15"/>
+                            <ComboBoxItem Content="600 (איכות גבוהה)" Tag="600" FontSize="15"/>
+                            <ComboBoxItem Content="מותאם אישית..." Tag="custom" FontSize="15"/>
                         </ComboBox>
-                        <TextBox x:Name="CustomDpiBox" Margin="0,8,0,0" Visibility="Collapsed"
+                        <TextBox x:Name="CustomDpiBox" Margin="0,8,0,0" Visibility="Collapsed" FontSize="15"
                                  ToolTip="הזן DPI (72-1200)" Text="300"/>
                     </StackPanel>
                     <StackPanel Margin="10,0,0,0">
                         <TextBlock Text="פורמט קובץ:" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
-                        <ComboBox x:Name="FormatCombo" SelectedIndex="0">
-                            <ComboBoxItem Content="PNG (איכות מלאה, מומלץ)" Tag="png"/>
-                            <ComboBoxItem Content="JPEG (קובץ קטן יותר)" Tag="jpeg"/>
+                        <ComboBox x:Name="FormatCombo" SelectedIndex="0" FontSize="15" Padding="8,6">
+                            <ComboBoxItem Content="PNG (איכות מלאה, מומלץ)" Tag="png" FontSize="15"/>
+                            <ComboBoxItem Content="JPEG (קובץ קטן יותר)" Tag="jpeg" FontSize="15"/>
                         </ComboBox>
                     </StackPanel>
                 </UniformGrid>
@@ -127,7 +128,7 @@
                              Foreground="{StaticResource BrushAccent}" Background="{StaticResource BrushSurface}"/>
                 <TextBlock x:Name="OverallProgressText" Grid.Column="1" Margin="12,0,0,0"
                            VerticalAlignment="Center" Foreground="{StaticResource BrushTextDim}"
-                           Text="מומר: 0 מתוך 0 ספרים"/>
+                           Text="מומר: 0 מתוך 0 עמודים"/>
             </Grid>
             <Button x:Name="OpenOutputButton" Content="פתח תיקיית פלט" Style="{StaticResource SecondaryButton}"
                     HorizontalAlignment="Left" Margin="0,10,0,0" Visibility="Collapsed"
@@ -135,7 +136,7 @@
         </StackPanel>
 
         <!-- Status bar -->
-        <TextBlock Grid.Row="4" Margin="0,16,0,0" Text="גרסה 1.0.0"
+        <TextBlock x:Name="VersionText" Grid.Row="4" Margin="0,16,0,0" Text="גרסה ..."
                     Foreground="{StaticResource BrushTextDim}" FontSize="11" HorizontalAlignment="Left"/>
     </Grid>
 </Window>

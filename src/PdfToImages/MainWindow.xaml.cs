@@ -27,6 +27,30 @@ public partial class MainWindow : Window
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             "PDF-to-Images-Output");
         OutputFolderText.Text = _outputRoot;
+
+        SetVersionText();
+    }
+
+    /// <summary>
+    /// Reads the real version baked into this exe at publish time (via the
+    /// -p:Version=... argument in the CI workflow) instead of a hardcoded
+    /// string, so the status bar always matches what was actually built.
+    /// </summary>
+    private void SetVersionText()
+    {
+        try
+        {
+            string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
+            string? version = !string.IsNullOrEmpty(exePath)
+                ? FileVersionInfo.GetVersionInfo(exePath).ProductVersion
+                : null;
+
+            VersionText.Text = string.IsNullOrWhiteSpace(version) ? "גרסה לא ידועה" : $"גרסה {version}";
+        }
+        catch
+        {
+            VersionText.Text = "גרסה לא ידועה";
+        }
     }
 
     // ---------- Adding files ----------
@@ -108,7 +132,7 @@ public partial class MainWindow : Window
         if (_isConverting) return;
         _jobs.Clear();
         OverallProgress.Value = 0;
-        OverallProgressText.Text = "מומר: 0 מתוך 0 ספרים";
+        OverallProgressText.Text = "מומר: 0 מתוך 0 עמודים";
         OpenOutputButton.Visibility = Visibility.Collapsed;
     }
 
@@ -255,6 +279,12 @@ public partial class MainWindow : Window
         int totalPagesWritten = 0;
         var logLines = new List<string>();
 
+        // The overall bar is weighted by page count, not by book count, so a single
+        // 400-page book doesn't look "stuck" while nine 5-page books race past it.
+        int totalPages = _jobs.Sum(j => j.PageCount);
+        int pagesDoneBeforeCurrentJob = 0;
+        UpdateOverallProgress(0, totalPages);
+
         foreach (var job in _jobs)
         {
             if (job.Status == JobStatus.Error && job.PageCount == 0)
@@ -265,7 +295,15 @@ public partial class MainWindow : Window
             }
 
             job.Status = JobStatus.Converting;
-            var progress = new Progress<int>(p => job.ProgressPercent = p);
+            int jobPageCount = job.PageCount;
+            int pagesBeforeThisJob = pagesDoneBeforeCurrentJob; // captured for the closure below
+
+            var progress = new Progress<int>(p =>
+            {
+                job.ProgressPercent = p;
+                int pagesDoneInJob = (int)Math.Round(p / 100.0 * jobPageCount);
+                UpdateOverallProgress(pagesBeforeThisJob + pagesDoneInJob, totalPages);
+            });
 
             ConversionResult result;
             try
@@ -292,8 +330,11 @@ public partial class MainWindow : Window
                 logLines.Add($"[{DateTime.Now:HH:mm:ss}] \"{job.BookName}\": {result.ErrorMessage}");
             }
 
-            OverallProgress.Value = (completed + failed) * 100.0 / _jobs.Count;
-            OverallProgressText.Text = $"מומר: {completed + failed} מתוך {_jobs.Count} ספרים";
+            // Whether the job succeeded or failed partway through, its page range is
+            // now behind us - move the baseline forward by its full page count so the
+            // bar keeps advancing monotonically toward totalPages.
+            pagesDoneBeforeCurrentJob += jobPageCount;
+            UpdateOverallProgress(pagesDoneBeforeCurrentJob, totalPages);
         }
 
         if (logLines.Count > 0)
@@ -325,6 +366,12 @@ public partial class MainWindow : Window
                 $"ההמרה הסתיימה עם שגיאות. {completed} ספרים הומרו בהצלחה, {failed} נכשלו. פרטים בקובץ הלוג.",
                 "הושלם עם שגיאות", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    private void UpdateOverallProgress(int pagesDone, int totalPages)
+    {
+        OverallProgress.Value = totalPages > 0 ? pagesDone * 100.0 / totalPages : 0;
+        OverallProgressText.Text = $"מומר: {pagesDone} מתוך {totalPages} עמודים";
     }
 
     private static bool HasEnoughDiskSpace(string targetFolder)

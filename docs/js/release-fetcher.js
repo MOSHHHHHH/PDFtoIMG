@@ -44,7 +44,12 @@
 
       const exeAsset = (data.assets || []).find((a) => a.name.toLowerCase().endsWith(".exe"));
       if (exeAsset && buttonEl) {
+        // Point straight at the .exe asset and force a download instead of a
+        // page navigation - until this resolves the button still safely falls
+        // back to the general Releases page set in the HTML.
         buttonEl.href = exeAsset.browser_download_url;
+        buttonEl.setAttribute("download", exeAsset.name);
+        buttonEl.removeAttribute("target");
         if (sizeEl) sizeEl.textContent = `לא נדרשת התקנה · ${formatBytes(exeAsset.size)}`;
       }
 
