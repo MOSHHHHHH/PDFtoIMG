@@ -157,16 +157,20 @@ public partial class MainWindow : Window
 
     private void ChooseFolder_Click(object sender, RoutedEventArgs e)
     {
-        using var dialog = new System.Windows.Forms.FolderBrowserDialog
+        // .NET 8 WPF ships a native folder picker - no WinForms dependency needed
+        // (mixing WinForms into a WPF project causes ambiguous-type build errors,
+        // since both frameworks define types like Application and DragEventArgs).
+        var dialog = new OpenFolderDialog
         {
-            Description = "בחר תיקיית יעד",
-            UseDescriptionForTitle = true,
-            SelectedPath = Directory.Exists(_outputRoot) ? _outputRoot : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            Title = "בחר תיקיית יעד",
+            InitialDirectory = Directory.Exists(_outputRoot)
+                ? _outputRoot
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
         };
 
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        if (dialog.ShowDialog() == true)
         {
-            _outputRoot = dialog.SelectedPath;
+            _outputRoot = dialog.FolderName;
             OutputFolderText.Text = _outputRoot;
         }
     }

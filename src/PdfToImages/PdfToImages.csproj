@@ -4,9 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <!-- WinForms is referenced only for the native FolderBrowserDialog (folder picker) -->
-    <UseWindowsFormsAndWpf>true</UseWindowsFormsAndWpf>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>PdfToImages</AssemblyName>
