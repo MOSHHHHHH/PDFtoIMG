@@ -1,0 +1,141 @@
+<Window x:Class="PdfToImages.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ממיר PDF לתמונות"
+        Height="640" Width="920" MinHeight="520" MinWidth="760"
+        FlowDirection="RightToLeft"
+        FontFamily="Segoe UI"
+        Background="{StaticResource BrushBackground}"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- top buttons -->
+            <RowDefinition Height="*"/>
+            <!-- file list -->
+            <RowDefinition Height="Auto"/>
+            <!-- settings -->
+            <RowDefinition Height="Auto"/>
+            <!-- convert + progress -->
+            <RowDefinition Height="Auto"/>
+            <!-- status bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Top action bar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
+            <Button Content="הוסף קבצי PDF..." Style="{StaticResource PrimaryButton}"
+                    Click="AddFiles_Click" Margin="0,0,10,0"/>
+            <Button Content="נקה רשימה" Style="{StaticResource SecondaryButton}"
+                    Click="ClearList_Click" Margin="0,0,20,0"/>
+            <TextBlock Text="או גררו קבצי PDF לכאן" Foreground="{StaticResource BrushTextDim}"
+                       VerticalAlignment="Center" FontSize="13"/>
+        </StackPanel>
+
+        <!-- File list -->
+        <Border Grid.Row="1" Background="{StaticResource BrushSurface}" CornerRadius="8"
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Padding="0">
+            <DataGrid x:Name="FilesGrid" AutoGenerateColumns="False" Background="Transparent"
+                      Foreground="{StaticResource BrushText}" BorderThickness="0"
+                      RowBackground="Transparent" AlternatingRowBackground="#1A1F27"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BrushBorder}"
+                      HeadersVisibility="Column" CanUserAddRows="False" CanUserDeleteRows="False"
+                      CanUserReorderColumns="False" SelectionMode="Extended"
+                      RowHeight="34" FontSize="13" CellEditEnding="FilesGrid_CellEditEnding">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#2A313D"/>
+                        <Setter Property="Foreground" Value="{StaticResource BrushTextDim}"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="שם הספר" Binding="{Binding BookName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                         Width="*" IsReadOnly="False">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="ToolTip" Value="לחצו פעמיים לשינוי שם הספר"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Margin" Value="8,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="מספר עמודים" Binding="{Binding PageCount}" Width="110" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="סטטוס" Binding="{Binding StatusText}" Width="220" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="התקדמות" Width="140">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ProgressBar Value="{Binding ProgressPercent}" Minimum="0" Maximum="100"
+                                             Height="10" Margin="8,0" Foreground="{StaticResource BrushAccent}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Settings -->
+        <Border Grid.Row="2" Margin="0,14,0,0" Background="{StaticResource BrushSurface}" CornerRadius="8"
+                BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Padding="16">
+            <StackPanel>
+                <UniformGrid Columns="2" Rows="1">
+                    <StackPanel Margin="0,0,10,0">
+                        <TextBlock Text="רזולוציה (DPI):" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="DpiCombo" SelectedIndex="1" SelectionChanged="DpiCombo_SelectionChanged">
+                            <ComboBoxItem Content="150 (מהיר)" Tag="150"/>
+                            <ComboBoxItem Content="300 (מומלץ)" Tag="300"/>
+                            <ComboBoxItem Content="600 (איכות גבוהה)" Tag="600"/>
+                            <ComboBoxItem Content="מותאם אישית..." Tag="custom"/>
+                        </ComboBox>
+                        <TextBox x:Name="CustomDpiBox" Margin="0,8,0,0" Visibility="Collapsed"
+                                 ToolTip="הזן DPI (72-1200)" Text="300"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,0,0,0">
+                        <TextBlock Text="פורמט קובץ:" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="FormatCombo" SelectedIndex="0">
+                            <ComboBoxItem Content="PNG (איכות מלאה, מומלץ)" Tag="png"/>
+                            <ComboBoxItem Content="JPEG (קובץ קטן יותר)" Tag="jpeg"/>
+                        </ComboBox>
+                    </StackPanel>
+                </UniformGrid>
+
+                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                    <TextBlock Text="תיקיית יעד:" Foreground="{StaticResource BrushText}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Button Content="בחר תיקייה..." Style="{StaticResource SecondaryButton}"
+                            Click="ChooseFolder_Click" Margin="0,0,10,0"/>
+                    <TextBlock x:Name="OutputFolderText" VerticalAlignment="Center"
+                               Foreground="{StaticResource BrushTextDim}" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Convert action + progress -->
+        <StackPanel Grid.Row="3" Margin="0,14,0,0">
+            <Button x:Name="ConvertButton" Content="התחל המרה" Style="{StaticResource PrimaryButton}"
+                    FontSize="17" Padding="18,14" Click="ConvertButton_Click"/>
+            <Grid Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar x:Name="OverallProgress" Height="14" Minimum="0" Maximum="100"
+                             Foreground="{StaticResource BrushAccent}" Background="{StaticResource BrushSurface}"/>
+                <TextBlock x:Name="OverallProgressText" Grid.Column="1" Margin="12,0,0,0"
+                           VerticalAlignment="Center" Foreground="{StaticResource BrushTextDim}"
+                           Text="מומר: 0 מתוך 0 ספרים"/>
+            </Grid>
+            <Button x:Name="OpenOutputButton" Content="פתח תיקיית פלט" Style="{StaticResource SecondaryButton}"
+                    HorizontalAlignment="Left" Margin="0,10,0,0" Visibility="Collapsed"
+                    Click="OpenOutputButton_Click"/>
+        </StackPanel>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="4" Margin="0,16,0,0" Text="גרסה 1.0.0"
+                    Foreground="{StaticResource BrushTextDim}" FontSize="11" HorizontalAlignment="Left"/>
+    </Grid>
+</Window>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ממיר PDF לתמונות</title>
+  <meta name="description" content="תוכנת Windows ניידת בקובץ בודד להמרת קבצי PDF לתמונות ברזולוציה גבוהה. ללא התקנה, תמיכה מלאה בעברית.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Rubik:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="../src/PdfToImages/Resources/icon.png" type="image/png">
+</head>
+<body>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="container hero-grid">
+
+      <div class="hero-copy">
+        <p class="eyebrow">PDF ← → תמונה</p>
+
+        <div class="typewriter-wrap">
+          <h1 class="typewriter" id="typewriter" aria-live="polite">
+            <span id="typewriter-text"></span><span class="cursor" aria-hidden="true"></span>
+          </h1>
+        </div>
+
+        <p class="hero-sub">
+          ממיר PDF לתמונות הופך כל מסמך לתמונות באיכות גבוהה - נוחות לצפייה, שיתוף וגלילה בטלפון.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#download" class="btn btn-primary">עבור להורדה</a>
+          <a href="#features" class="btn btn-ghost">תכונות</a>
+        </div>
+      </div>
+
+      <div class="scan-stage" aria-hidden="true">
+        <div class="page-stack">
+          <div class="sheet"></div>
+          <div class="sheet"></div>
+          <div class="sheet">
+            <div class="rule med"></div>
+            <div class="rule short"></div>
+            <div class="rule med"></div>
+            <div class="rule med"></div>
+            <div class="rule short"></div>
+            <div class="rule med"></div>
+          </div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="scroll-cue">
+      <span>גללו למטה</span>
+      <span class="arrow"></span>
+    </div>
+  </header>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="section-eyebrow">תכונות</p>
+        <h2 class="section-title">למה ממיר PDF לתמונות?</h2>
+        <p class="section-sub">נבנה מהיסוד סביב שלוש עדיפויות: אמינות קודם כול, אחריה הצגה תקינה של עברית, ולבסוף מהירות.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">🛡️</div>
+          <h3>אמינות מלאה</h3>
+          <p>טיפול חכם בקבצים פגומים - שגיאה בקובץ אחד לא עוצרת את כל התהליך, וכל עמוד נכתב באופן אטומי כדי למנוע תמונות פגומות.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">א/A</div>
+          <h3>תמיכה מלאה בעברית</h3>
+          <p>הצגה תקינה של טקסט עברי ולועזי מעורב בממשק, בזכות מנוע הטקסט הילידי של Windows.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">⚡</div>
+          <h3>המרה מהירה</h3>
+          <p>מבוסס מנוע רינדור מקצועי (PDFium) - אותו מנוע שבבסיס Chrome.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">📦</div>
+          <h3>קובץ בודד, ללא התקנה</h3>
+          <p>הורידו והריצו - לא נדרשת התקנה, הרשאות מיוחדות או חיבור לאינטרנט.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">🖼️</div>
+          <h3>איכות מותאמת אישית</h3>
+          <p>בחרו רזולוציה מ-72 ועד 1200 DPI, וגם פורמט פלט - PNG או JPEG.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">📚</div>
+          <h3>המרה קבוצתית</h3>
+          <p>המירו כמה ספרי PDF יחד - כל ספר נשמר בתיקייה נפרדת ומסודרת משלו.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="section-eyebrow">תהליך העבודה</p>
+        <h2 class="section-title">איך זה עובד</h2>
+      </div>
+
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">1</div>
+          <h4>בחרו קבצי PDF</h4>
+          <p>גררו לחלון או בחרו קובץ אחד או כמה יחד</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">2</div>
+          <h4>הגדירו רזולוציה</h4>
+          <p>בחרו איכות פלט (DPI) ופורמט תמונה</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">3</div>
+          <h4>לחצו המר</h4>
+          <p>התוכנה עושה את השאר - עמוד אחר עמוד</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">4</div>
+          <h4>קבלו תיקיות מסודרות</h4>
+          <p>כל ספר בתיקייה משלו, עמודים ממוספרים</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOWNLOAD ============ -->
+  <section id="download">
+    <div class="container">
+      <div class="download-panel reveal">
+        <p class="download-version" id="download-version">בודק גרסה אחרונה...</p>
+        <h2 class="download-title">הורד עכשיו</h2>
+
+        <a class="btn btn-primary" id="download-button" href="https://github.com/MOSHHHHHHH/PDFtoIMG/releases/latest" target="_blank" rel="noopener">
+          ⬇ הורד ל-Windows
+        </a>
+
+        <p class="download-meta">
+          <span id="download-size">לא נדרשת התקנה</span>
+          <span>תואם Windows 10/11 64-bit</span>
+          <span id="download-date"></span>
+        </p>
+
+        <p class="download-fallback">
+          <a href="https://github.com/MOSHHHHHHH/PDFtoIMG/releases" target="_blank" rel="noopener">לצפייה בכל הגרסאות</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container footer-row">
+      <span>© <span id="year"></span> ממיר PDF לתמונות</span>
+      <div class="footer-links">
+        <a href="https://github.com/MOSHHHHHHH/PDFtoIMG" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/MOSHHHHHHH/PDFtoIMG/issues" target="_blank" rel="noopener">דיווח על תקלה</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/typewriter.js"></script>
+  <script src="js/release-fetcher.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Scroll-triggered reveal animations
+    const revealEls = document.querySelectorAll(".reveal");
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>
