@@ -43,7 +43,22 @@ public class PdfConverterService
         return Conversion.GetPageCount(stream);
     }
 
-    public async Task<ConversionResult> ConvertAsync(
+    public Task<ConversionResult> ConvertAsync(
+        ConversionJob job,
+        ConversionSettings settings,
+        IProgress<int> progress,
+        CancellationToken cancellationToken)
+    {
+        // ConvertPagesSync does only synchronous file I/O and PDFium calls - there is
+        // no real await anywhere in that work. Running it directly on an "async" method
+        // does NOT move it off the calling thread; without this Task.Run, the entire
+        // page loop executes on the UI thread and freezes the window for the whole
+        // conversion, even though the method is awaited. Task.Run is what actually
+        // offloads it to a thread-pool thread.
+        return Task.Run(() => ConvertPagesSync(job, settings, progress, cancellationToken), cancellationToken);
+    }
+
+    private ConversionResult ConvertPagesSync(
         ConversionJob job,
         ConversionSettings settings,
         IProgress<int> progress,
