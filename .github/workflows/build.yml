@@ -1,0 +1,89 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g. 1.0.0) - used only for a manual test build, no release is published"
+        required: false
+        default: "0.0.0-dev"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $raw = "${{ github.ref_name }}"
+            $version = $raw -replace '^v', ''
+          } else {
+            $version = "${{ github.event.inputs.version }}"
+          }
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Building version $version"
+
+      - name: Restore
+        run: dotnet restore src/PdfToImages.sln
+
+      - name: Publish single-file executable
+        run: >
+          dotnet publish src/PdfToImages/PdfToImages.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:FileVersion=${{ steps.version.outputs.version }}.0
+          -o publish
+
+      - name: Verify the executable exists and is a valid PE file
+        shell: pwsh
+        run: |
+          $exe = "publish/PdfToImages.exe"
+          if (-not (Test-Path $exe)) {
+            throw "Build failed: $exe was not produced."
+          }
+          $size = (Get-Item $exe).Length
+          Write-Host "Executable size: $size bytes"
+          if ($size -lt 1MB) {
+            throw "Build looks suspicious: executable is unexpectedly small ($size bytes)."
+          }
+
+      - name: Rename output for release
+        shell: pwsh
+        run: |
+          Copy-Item "publish/PdfToImages.exe" "publish/PDFtoIMG.exe"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDFtoIMG-${{ steps.version.outputs.version }}
+          path: publish/PDFtoIMG.exe
+          retention-days: 30
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/PDFtoIMG.exe
+          name: "ממיר PDF לתמונות ${{ steps.version.outputs.version }}"
+          generate_release_notes: true
