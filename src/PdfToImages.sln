@@ -1,9 +1,11 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfToImages", "PdfToImages\PdfToImages.csproj", "{9A6F0D2E-1B3C-4E7A-9F2D-9E4C6A1B2C3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfToImages.Tests", "..\tests\PdfToImages.Tests\PdfToImages.Tests.csproj", "{6A417F0E-EC8E-47EE-9165-517F1759923E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{9A6F0D2E-1B3C-4E7A-9F2D-9E4C6A1B2C3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A6F0D2E-1B3C-4E7A-9F2D-9E4C6A1B2C3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A6F0D2E-1B3C-4E7A-9F2D-9E4C6A1B2C3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A417F0E-EC8E-47EE-9165-517F1759923E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A417F0E-EC8E-47EE-9165-517F1759923E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A417F0E-EC8E-47EE-9165-517F1759923E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A417F0E-EC8E-47EE-9165-517F1759923E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

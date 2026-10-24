@@ -24,6 +24,7 @@ public class ConversionResult
 {
     public bool Success { get; init; }
     public int PagesWritten { get; init; }
+    public string? OutputPath { get; init; }
     public string? ErrorMessage { get; init; }
 }
 
@@ -109,14 +110,14 @@ public class PdfConverterService
             int pageNumberOneBased = pageIndex + 1;
             string fileName = FileNamingService.BuildFileName(job.BookName, pageNumberOneBased, pageCount, extension);
             string finalPath = Path.Combine(outputFolder, fileName);
-            string tempPath = finalPath + ".tmp";
+            string tempPath = finalPath + $".{Guid.NewGuid():N}.tmp";
 
             try
             {
                 using (var pdfStream = File.OpenRead(job.SourcePath))
                 using (SKBitmap bitmap = Conversion.ToImage(
                            pdfStream,
-                           page: pageIndex,
+                           page: new Index(pageIndex),
                            options: new RenderOptions(Dpi: settings.Dpi)))
                 {
                     using var fs = File.Create(tempPath);
@@ -132,12 +133,10 @@ public class PdfConverterService
 
                 // Atomic publish: only replace the final file once the temp file
                 // was written and closed successfully.
-                if (File.Exists(finalPath))
-                    File.Delete(finalPath);
-                File.Move(tempPath, finalPath);
+                File.Move(tempPath, finalPath, overwrite: true);
 
                 written++;
-                progress.Report((int)Math.Round(pageNumberOneBased * 100.0 / pageCount));
+                progress.Report(pageNumberOneBased);
             }
             catch (Exception ex)
             {

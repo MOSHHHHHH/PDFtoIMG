@@ -1,8 +1,8 @@
 <Window x:Class="PdfToImages.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ממיר PDF לתמונות"
-        Height="640" Width="920" MinHeight="520" MinWidth="760"
+        Title="PDFtoIMG — ממיר PDF לתמונות ול־Word"
+        Height="720" Width="920" MinHeight="520" MinWidth="760"
         FlowDirection="RightToLeft"
         FontFamily="Segoe UI"
         Background="{StaticResource BrushBackground}"
@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <!-- Top action bar -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
+        <StackPanel x:Name="FileActions" Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,14">
             <Button Content="הוסף קבצי PDF..." Style="{StaticResource PrimaryButton}"
                     Click="AddFiles_Click" Margin="0,0,10,0"/>
             <Button Content="נקה רשימה" Style="{StaticResource SecondaryButton}"
@@ -79,15 +79,25 @@
         </Border>
 
         <!-- Settings -->
-        <Border Grid.Row="2" Margin="0,14,0,0" Background="{StaticResource BrushSurface}" CornerRadius="8"
+        <Border x:Name="SettingsPanel" Grid.Row="2" Margin="0,14,0,0" Background="{StaticResource BrushSurface}" CornerRadius="8"
                 BorderBrush="{StaticResource BrushBorder}" BorderThickness="1" Padding="16">
             <StackPanel>
+                <TextBlock Text="סוג הפלט:" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
+                <ComboBox x:Name="OutputTypeCombo" SelectedIndex="0" FontSize="15" Padding="8,6"
+                          SelectionChanged="OutputTypeCombo_SelectionChanged" Margin="0,0,0,12">
+                    <ComboBoxItem Content="תמונות PNG/JPEG" Tag="images"/>
+                    <ComboBoxItem Content="מסמך Word (DOCX) — עמודים כתמונות" Tag="docx"/>
+                </ComboBox>
+                <TextBlock x:Name="DocxHint" Visibility="Collapsed" TextWrapping="Wrap" Margin="0,0,0,10"
+                           Foreground="{StaticResource BrushTextDim}"
+                           Text="מסמך נפרד לכל PDF, תמונה בכל עמוד. ללא OCR או טקסט ניתן לעריכה. קבצים קיימים נשמרים — לשם החדש יתווסף מספר."/>
                 <UniformGrid Columns="2" Rows="1">
                     <StackPanel Margin="0,0,10,0">
                         <TextBlock Text="רזולוציה (DPI):" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
-                        <ComboBox x:Name="DpiCombo" SelectedIndex="1" FontSize="15" Padding="8,6"
+                        <ComboBox x:Name="DpiCombo" SelectedIndex="2" FontSize="15" Padding="8,6"
                                   SelectionChanged="DpiCombo_SelectionChanged">
                             <ComboBoxItem Content="150 (מהיר)" Tag="150" FontSize="15"/>
+                            <ComboBoxItem Content="200 (מומלץ ל־Word)" Tag="200" FontSize="15"/>
                             <ComboBoxItem Content="300 (מומלץ)" Tag="300" FontSize="15"/>
                             <ComboBoxItem Content="600 (איכות גבוהה)" Tag="600" FontSize="15"/>
                             <ComboBoxItem Content="מותאם אישית..." Tag="custom" FontSize="15"/>
@@ -95,7 +105,7 @@
                         <TextBox x:Name="CustomDpiBox" Margin="0,8,0,0" Visibility="Collapsed" FontSize="15"
                                  ToolTip="הזן DPI (72-1200)" Text="300"/>
                     </StackPanel>
-                    <StackPanel Margin="10,0,0,0">
+                    <StackPanel x:Name="ImageFormatPanel" Margin="10,0,0,0">
                         <TextBlock Text="פורמט קובץ:" Foreground="{StaticResource BrushText}" Margin="0,0,0,6"/>
                         <ComboBox x:Name="FormatCombo" SelectedIndex="0" FontSize="15" Padding="8,6">
                             <ComboBoxItem Content="PNG (איכות מלאה, מומלץ)" Tag="png" FontSize="15"/>

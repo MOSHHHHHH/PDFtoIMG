@@ -14,6 +14,9 @@ public partial class MainWindow : Window
 {
     private readonly ObservableCollection<ConversionJob> _jobs = new();
     private readonly PdfConverterService _converter = new();
+    private readonly DocxConverterService _docxConverter = new();
+    private int _imageDpiIndex = 2;
+    private int _docxDpiIndex = 1;
     private string _outputRoot = string.Empty;
     private bool _isConverting;
 
@@ -72,13 +75,13 @@ public partial class MainWindow : Window
 
     private void Window_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Effects = !_isConverting && e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         e.Handled = true;
     }
 
     private void Window_Drop(object sender, DragEventArgs e)
     {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        if (_isConverting || !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
 
         var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
         var pdfPaths = paths.Where(p => Path.GetExtension(p).Equals(".pdf", StringComparison.OrdinalIgnoreCase));
@@ -116,7 +119,7 @@ public partial class MainWindow : Window
             {
                 job.PageCount = _converter.GetPageCount(path);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 job.Status = JobStatus.Error;
                 job.ErrorDetail = "לא ניתן לקרוא את הקובץ";
@@ -177,6 +180,25 @@ public partial class MainWindow : Window
         if (CustomDpiBox == null) return; // fires once during InitializeComponent
         var item = DpiCombo.SelectedItem as ComboBoxItem;
         CustomDpiBox.Visibility = (item?.Tag as string) == "custom" ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private bool IsDocx => (OutputTypeCombo.SelectedItem as ComboBoxItem)?.Tag as string == "docx";
+
+    private void OutputTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DpiCombo == null || ImageFormatPanel == null || DocxHint == null) return;
+        if (IsDocx)
+        {
+            _imageDpiIndex = DpiCombo.SelectedIndex;
+            DpiCombo.SelectedIndex = _docxDpiIndex;
+        }
+        else
+        {
+            _docxDpiIndex = DpiCombo.SelectedIndex;
+            DpiCombo.SelectedIndex = _imageDpiIndex;
+        }
+        ImageFormatPanel.IsEnabled = !IsDocx;
+        DocxHint.Visibility = IsDocx ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void ChooseFolder_Click(object sender, RoutedEventArgs e)
@@ -242,6 +264,17 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (!FilesGrid.CommitEdit(DataGridEditingUnit.Cell, true) ||
+            !FilesGrid.CommitEdit(DataGridEditingUnit.Row, true)) return;
+        foreach (var job in _jobs) job.BookName = job.BookName.Trim();
+        if (_jobs.Any(j => FileNamingService.HasInvalidChars(j.BookName)) ||
+            _jobs.Select(j => j.BookName).Distinct(StringComparer.OrdinalIgnoreCase).Count() != _jobs.Count)
+        {
+            MessageBox.Show("יש לבחור שמות תקינים וייחודיים לכל הקבצים (עד 150 תווים, ללא שמות שמורים או נקודה בסוף).",
+                "שמות קבצים", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         try
         {
             Directory.CreateDirectory(_outputRoot);
@@ -265,6 +298,10 @@ public partial class MainWindow : Window
 
         _isConverting = true;
         ConvertButton.IsEnabled = false;
+        FileActions.IsEnabled = false;
+        SettingsPanel.IsEnabled = false;
+        FilesGrid.IsReadOnly = true;
+        bool docx = IsDocx;
         OpenOutputButton.Visibility = Visibility.Collapsed;
 
         var settings = new ConversionSettings
@@ -285,56 +322,71 @@ public partial class MainWindow : Window
         int pagesDoneBeforeCurrentJob = 0;
         UpdateOverallProgress(0, totalPages);
 
-        foreach (var job in _jobs)
+        try
         {
-            if (job.Status == JobStatus.Error && job.PageCount == 0)
+            foreach (var job in _jobs)
             {
-                // File failed to open when it was added - skip, already flagged.
-                failed++;
-                continue;
+                if (job.Status == JobStatus.Error && job.PageCount == 0)
+                {
+                    // File failed to open when it was added - skip, already flagged.
+                    failed++;
+                    logLines.Add($"[{DateTime.Now:HH:mm:ss}] \"{job.BookName}\": {job.ErrorDetail}");
+                    continue;
+                }
+
+                job.Status = JobStatus.Converting;
+                job.ProgressPercent = 0;
+                job.ErrorDetail = null;
+                int jobPageCount = job.PageCount;
+                int pagesBeforeThisJob = pagesDoneBeforeCurrentJob; // captured for the closure below
+
+                var progress = new Progress<int>(p =>
+                {
+                    if (job.Status != JobStatus.Converting) return;
+                    job.ProgressPercent = jobPageCount > 0 ? (int)(p * 100L / jobPageCount) : 0;
+                    UpdateOverallProgress(pagesBeforeThisJob + p, totalPages);
+                });
+
+                ConversionResult result;
+                try
+                {
+                    result = docx
+                        ? await _docxConverter.ConvertAsync(job, settings, progress, CancellationToken.None)
+                        : await _converter.ConvertAsync(job, settings, progress, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    result = new ConversionResult { Success = false, ErrorMessage = ex.Message };
+                }
+
+                if (result.Success)
+                {
+                    job.Status = JobStatus.Done;
+                    job.ProgressPercent = 100;
+                    completed++;
+                    totalPagesWritten += result.PagesWritten;
+                }
+                else
+                {
+                    job.Status = JobStatus.Error;
+                    job.ErrorDetail = result.ErrorMessage;
+                    failed++;
+                    logLines.Add($"[{DateTime.Now:HH:mm:ss}] \"{job.BookName}\": {result.ErrorMessage}");
+                }
+
+                // Count only pages actually saved; failed jobs must not make the bar claim success.
+                pagesDoneBeforeCurrentJob += result.PagesWritten;
+                UpdateOverallProgress(pagesDoneBeforeCurrentJob, totalPages);
             }
 
-            job.Status = JobStatus.Converting;
-            int jobPageCount = job.PageCount;
-            int pagesBeforeThisJob = pagesDoneBeforeCurrentJob; // captured for the closure below
-
-            var progress = new Progress<int>(p =>
-            {
-                job.ProgressPercent = p;
-                int pagesDoneInJob = (int)Math.Round(p / 100.0 * jobPageCount);
-                UpdateOverallProgress(pagesBeforeThisJob + pagesDoneInJob, totalPages);
-            });
-
-            ConversionResult result;
-            try
-            {
-                result = await _converter.ConvertAsync(job, settings, progress, CancellationToken.None);
-            }
-            catch (Exception ex)
-            {
-                result = new ConversionResult { Success = false, ErrorMessage = ex.Message };
-            }
-
-            if (result.Success)
-            {
-                job.Status = JobStatus.Done;
-                job.ProgressPercent = 100;
-                completed++;
-                totalPagesWritten += result.PagesWritten;
-            }
-            else
-            {
-                job.Status = JobStatus.Error;
-                job.ErrorDetail = result.ErrorMessage;
-                failed++;
-                logLines.Add($"[{DateTime.Now:HH:mm:ss}] \"{job.BookName}\": {result.ErrorMessage}");
-            }
-
-            // Whether the job succeeded or failed partway through, its page range is
-            // now behind us - move the baseline forward by its full page count so the
-            // bar keeps advancing monotonically toward totalPages.
-            pagesDoneBeforeCurrentJob += jobPageCount;
-            UpdateOverallProgress(pagesDoneBeforeCurrentJob, totalPages);
+        }
+        finally
+        {
+            _isConverting = false;
+            ConvertButton.IsEnabled = true;
+            FileActions.IsEnabled = true;
+            SettingsPanel.IsEnabled = true;
+            FilesGrid.IsReadOnly = false;
         }
 
         if (logLines.Count > 0)
@@ -342,7 +394,7 @@ public partial class MainWindow : Window
             try
             {
                 string logPath = Path.Combine(_outputRoot, "log-שגיאות.txt");
-                File.WriteAllLines(logPath, logLines);
+                File.AppendAllLines(logPath, logLines);
             }
             catch
             {
@@ -350,8 +402,6 @@ public partial class MainWindow : Window
             }
         }
 
-        _isConverting = false;
-        ConvertButton.IsEnabled = true;
         OpenOutputButton.Visibility = Visibility.Visible;
 
         if (failed == 0)
