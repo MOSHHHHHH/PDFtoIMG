@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ממיר PDF לתמונות</title>
-  <meta name="description" content="תוכנת Windows ניידת בקובץ בודד להמרת קבצי PDF לתמונות ברזולוציה גבוהה. ללא התקנה, תמיכה מלאה בעברית.">
+  <title>PDFtoIMG — ממיר PDF לתמונות ול־Word</title>
+  <meta name="description" content="תוכנת Windows ניידת להמרת PDF לתמונות או למסמך Word עם עמודים כתמונות. ללא התקנה, ללא OCR, ממשק עברי מלא.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
     <div class="container hero-grid">
 
       <div class="hero-copy">
-        <p class="eyebrow">PDF ← → תמונה</p>
+        <p class="eyebrow">PDF → PNG / JPEG / DOCX</p>
 
         <div class="typewriter-wrap">
           <h1 class="typewriter" id="typewriter" aria-live="polite">
@@ -29,7 +29,7 @@
         </div>
 
         <p class="hero-sub">
-          ממיר PDF לתמונות הופך כל מסמך לתמונות באיכות גבוהה - נוחות לצפייה, שיתוף וגלילה בטלפון.
+          PDFtoIMG הופך כל PDF לתמונות באיכות גבוהה או למסמך Word אחד — כל עמוד כתמונה, במראה המקורי וללא OCR.
         </p>
 
         <div class="hero-actions">
@@ -67,7 +67,7 @@
     <div class="container">
       <div class="section-head reveal">
         <p class="section-eyebrow">תכונות</p>
-        <h2 class="section-title">למה ממיר PDF לתמונות?</h2>
+        <h2 class="section-title">תמונות או Word — לבחירתכם</h2>
         <p class="section-sub">נבנה מהיסוד סביב שלוש עדיפויות: אמינות קודם כול, אחריה הצגה תקינה של עברית, ולבסוף מהירות.</p>
       </div>
 
@@ -88,19 +88,24 @@
           <p>מבוסס מנוע רינדור מקצועי (PDFium) - אותו מנוע שבבסיס Chrome.</p>
         </div>
         <div class="feature-card reveal">
+          <div class="feature-icon">📄</div>
+          <h3>חדש: PDFtoDOCX</h3>
+          <p>תמונה בכל עמוד Word, כולל עמודים לאורך ולרוחב. התמונות מוטמעות במסמך — אין קישורים חיצוניים ואין טקסט הניתן לעריכה.</p>
+        </div>
+        <div class="feature-card reveal">
           <div class="feature-icon">📦</div>
           <h3>קובץ בודד, ללא התקנה</h3>
-          <p>הורידו והריצו - לא נדרשת התקנה, הרשאות מיוחדות או חיבור לאינטרנט.</p>
+          <p>הורידו והריצו — ללא אינטרנט, ללא התקנת Word וללא התקנת .NET בנפרד.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon">🖼️</div>
           <h3>איכות מותאמת אישית</h3>
-          <p>בחרו רזולוציה מ-72 ועד 1200 DPI, וגם פורמט פלט - PNG או JPEG.</p>
+          <p>PNG או JPEG ברזולוציה מ־72 ועד 1200 DPI. במצב Word ברירת המחדל היא 200 DPI, עם אפשרות לאיכות גבוהה יותר.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon">📚</div>
           <h3>המרה קבוצתית</h3>
-          <p>המירו כמה ספרי PDF יחד - כל ספר נשמר בתיקייה נפרדת ומסודרת משלו.</p>
+          <p>המירו כמה קובצי PDF יחד — כל PDF בתיקיית תמונות נפרדת או במסמך Word נפרד.</p>
         </div>
       </div>
     </div>
@@ -123,7 +128,7 @@
         <div class="step reveal">
           <div class="step-num">2</div>
           <h4>הגדירו רזולוציה</h4>
-          <p>בחרו איכות פלט (DPI) ופורמט תמונה</p>
+          <p>בחרו תמונות PNG/JPEG או Word ‏(DOCX), ואת איכות הפלט</p>
         </div>
         <div class="step reveal">
           <div class="step-num">3</div>
@@ -132,8 +137,8 @@
         </div>
         <div class="step reveal">
           <div class="step-num">4</div>
-          <h4>קבלו תיקיות מסודרות</h4>
-          <p>כל ספר בתיקייה משלו, עמודים ממוספרים</p>
+          <h4>קבלו פלט מסודר</h4>
+          <p>תיקיית תמונות או מסמך Word לכל PDF; במצב DOCX קבצים קיימים נשמרים</p>
         </div>
       </div>
     </div>
@@ -147,7 +152,7 @@
         <h2 class="download-title">הורד עכשיו</h2>
 
         <a class="btn btn-primary" id="download-button"
-           href="https://github.com/MOSHHHHHH/PDFtoIMG/releases/latest" target="_blank" rel="noopener">
+           href="https://github.com/MOSHHHHHH/PDFtoIMG/releases" target="_blank" rel="noopener">
           ⬇ הורד ל-Windows
         </a>
 
@@ -167,7 +172,7 @@
   <!-- ============ FOOTER ============ -->
   <footer>
     <div class="container footer-row">
-      <span>© <span id="year"></span> ממיר PDF לתמונות</span>
+      <span>© <span id="year"></span> ממיר PDF לתמונות ול־Word</span>
       <div class="footer-links">
         <a href="https://github.com/MOSHHHHHH/PDFtoIMG" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/MOSHHHHHH/PDFtoIMG/issues" target="_blank" rel="noopener">דיווח על תקלה</a>

@@ -13,11 +13,16 @@ namespace PdfToImages.Services;
 /// </summary>
 public static class FileNamingService
 {
-    private static readonly char[] InvalidChars = Path.GetInvalidFileNameChars();
+    private static readonly char[] InvalidChars = "<>:\"/\\|?*".ToCharArray();
+    private static readonly Regex ReservedName = new(
+        @"^(CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>True if the name contains characters that cannot be used in a Windows file/folder name.</summary>
     public static bool HasInvalidChars(string bookName) =>
-        string.IsNullOrWhiteSpace(bookName) || bookName.IndexOfAny(InvalidChars) >= 0;
+        string.IsNullOrWhiteSpace(bookName) || bookName.Length > 150 ||
+        bookName.IndexOfAny(InvalidChars) >= 0 || bookName.Any(char.IsControl) ||
+        bookName.EndsWith('.') || bookName.EndsWith(' ') || ReservedName.IsMatch(bookName);
 
     /// <summary>
     /// Returns the padded page-number string for a given 1-based page index,
