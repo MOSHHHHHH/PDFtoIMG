@@ -9,7 +9,7 @@
 (function () {
   const OWNER = "MOSHHHHHH";
   const REPO = "PDFtoIMG";
-  const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`;
+  const API_URL = `https://api.github.com/repos/${OWNER}/${REPO}/releases?per_page=10`;
 
   const versionEl = document.getElementById("download-version");
   const buttonEl = document.getElementById("download-button");
@@ -36,10 +36,16 @@
       if (!res.ok) throw new Error(`GitHub API responded ${res.status}`);
       return res.json();
     })
-    .then((data) => {
+    .then((releases) => {
+      // /releases/latest excludes pre-releases. This project distributes beta
+      // builds too; pick the newest published release with a downloadable EXE.
+      const data = releases
+        .filter((release) => !release.draft && (release.assets || []).some((a) => a.name.toLowerCase().endsWith(".exe")))
+        .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
+      if (!data) throw new Error("No published Windows executable found");
       const version = data.tag_name || data.name;
       if (version && versionEl) {
-        versionEl.textContent = `גרסה נוכחית: ${version}`;
+        versionEl.textContent = `גרסה נוכחית: ${version}${data.prerelease ? " (בטא)" : ""}`;
       }
 
       const exeAsset = (data.assets || []).find((a) => a.name.toLowerCase().endsWith(".exe"));
@@ -59,6 +65,6 @@
     })
     .catch(() => {
       if (versionEl) versionEl.textContent = "לצפייה בגרסה העדכנית, ראו את עמוד ה-Releases";
-      // buttonEl keeps its static fallback href pointing at /releases/latest
+      // buttonEl keeps its static fallback href pointing at /releases
     });
 })();

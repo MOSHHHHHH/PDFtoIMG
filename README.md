@@ -61,9 +61,10 @@ docs/                                          אתר GitHub Pages
 
 ## פיתוח ובדיקות
 
-נדרש SDK של .NET 8. ספריות הרינדור מסופקות דרך NuGet. הבדיקות מקשרות את קוד השירותים המקורי לפרויקט שאינו תלוי ב־WPF, וניתנות להרצה ב־Windows וב־Linux:
+נדרש SDK של .NET 8. בדיקת קישור ההורדה באתר דורשת Node.js 18 ומעלה. ספריות הרינדור מסופקות דרך NuGet. הבדיקות מקשרות את קוד השירותים המקורי לפרויקט שאינו תלוי ב־WPF, וניתנות להרצה ב־Windows וב־Linux:
 
 ```sh
+node --test tests/release-fetcher.test.cjs
 dotnet restore tests/PdfToImages.Tests/PdfToImages.Tests.csproj
 dotnet test tests/PdfToImages.Tests/PdfToImages.Tests.csproj -c Release --no-restore
 dotnet restore src/PdfToImages.sln -p:EnableWindowsTargeting=true

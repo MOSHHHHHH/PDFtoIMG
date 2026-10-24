@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Test website release download selection
+        run: node --test tests/release-fetcher.test.cjs
       - name: Restore
         run: dotnet restore tests/PdfToImages.Tests/PdfToImages.Tests.csproj
       - name: Test real PDF rendering and DOCX structure
